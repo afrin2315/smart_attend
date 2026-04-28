@@ -94,6 +94,7 @@ smartattend/
 |   |-- seed_data.py
 |   |-- requirements.txt
 |   |-- alembic.ini
+|   |-- .env.example
 |   `-- .env
 |-- frontend/
 |   |-- src/
@@ -120,10 +121,13 @@ smartattend/
 |   |   |-- index.css
 |   |   `-- main.jsx
 |   |-- package.json
+|   |-- vercel.json
 |   |-- tailwind.config.js
 |   |-- postcss.config.js
 |   |-- vite.config.js
+|   |-- .env.example
 |   `-- .env
+|-- render.yaml
 `-- README.md
 ```
 
@@ -218,6 +222,70 @@ Start the frontend:
 npm run dev
 ```
 
+## Deployment
+
+This repo is set up for a split deployment with `Render` for the backend, `Vercel` for the frontend, and `Supabase PostgreSQL` for the database.
+
+### 1. Backend on Render
+
+The repo includes `render.yaml` at the project root. In Render, create a new `Blueprint` deploy from this GitHub repo or create a web service manually with:
+
+- Root directory: `backend`
+- Build command: `pip install -r requirements.txt`
+- Start command: `alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port $PORT`
+
+Set these environment variables in Render:
+
+```env
+DATABASE_URL=postgresql://postgres.<project-ref>:<password>@aws-<region>.pooler.supabase.com:5432/postgres
+SECRET_KEY=replace-with-a-long-random-secret
+ACCESS_TOKEN_EXPIRE_MINUTES=480
+CORS_ORIGINS=https://your-frontend-domain.vercel.app
+```
+
+Useful backend URLs after deploy:
+
+- `/` returns a basic status payload
+- `/health` returns `{ "status": "ok" }`
+
+Notes:
+
+- `alembic upgrade head` runs automatically on startup
+- Do not use the local SQLite file in production
+- `seed_data.py` is optional and should only be run if you want demo accounts in production
+
+### 2. Frontend on Vercel
+
+Deploy the `frontend` folder as the Vercel project root.
+
+Project settings:
+
+- Framework preset: `Vite`
+- Root directory: `frontend`
+- Build command: `npm run build`
+- Output directory: `dist`
+
+Set this environment variable in Vercel:
+
+```env
+VITE_API_BASE_URL=https://your-render-backend.onrender.com
+```
+
+The file `frontend/vercel.json` is included so React Router routes work correctly on refresh.
+
+### 3. Final wiring
+
+After the frontend is live:
+
+1. Copy the Vercel production URL
+2. Add it to the Render `CORS_ORIGINS` value
+3. Redeploy the backend if needed
+4. Confirm login and API requests from the hosted frontend
+
+### 4. Example production env files
+
+Templates are included in `backend/.env.example` and `frontend/.env.example`.
+
 Frontend default URL:
 
 ```text
@@ -248,56 +316,6 @@ The seed script also creates additional demo users, sessions, departments, atten
 alembic upgrade head
 python seed_data.py
 ```
-
-## Deployment
-
-### Backend on Railway
-
-1. Create a Railway service for the `backend` folder.
-2. Set:
-   - `DATABASE_URL`
-   - `SECRET_KEY`
-   - `ACCESS_TOKEN_EXPIRE_MINUTES`
-   - `CORS_ORIGINS`
-3. Run migrations during deploy or as a release step:
-
-```bash
-alembic upgrade head
-```
-
-4. Deploy with:
-
-```bash
-railway up
-```
-
-### Frontend on Vercel
-
-1. Import the `frontend` folder into Vercel.
-2. Set:
-
-```env
-VITE_API_BASE_URL=https://your-railway-backend-url
-```
-
-3. Deploy with:
-
-```bash
-vercel deploy
-```
-
-## Screenshots
-
-- Login page: placeholder
-- Signup page: placeholder
-- Teacher live session view: placeholder
-- Student scan page: placeholder
-- Reports dashboard: placeholder
-
-## Live demo
-
-- Railway Backend: add-your-railway-url
-- Vercel Frontend: add-your-vercel-url
 
 ## Author
 

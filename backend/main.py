@@ -39,3 +39,8 @@ app.include_router(reports.router)
 @app.get("/")
 def root():
     return {"status": "SmartAttend API running"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
