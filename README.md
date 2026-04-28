@@ -224,7 +224,7 @@ npm run dev
 
 ## Deployment
 
-This repo is set up for a split deployment with `Render` for the backend, `Vercel` for the frontend, and `Supabase PostgreSQL` for the database.
+This repo is set up for a split deployment with `Vercel` for the frontend, `Supabase PostgreSQL` for the database, and either `Render` or `Railway` for the backend.
 
 ### 1. Backend on Render
 
@@ -254,6 +254,45 @@ Notes:
 - Do not use the local SQLite file in production
 - `seed_data.py` is optional and should only be run if you want demo accounts in production
 
+### 1B. Backend on Railway
+
+Railway is also a strong fit for this backend because the app uses FastAPI plus WebSockets for the live attendance feed.
+
+Create a Railway service from this GitHub repo and use these settings:
+
+- Root directory: `/backend`
+- Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Pre-deploy command: `alembic upgrade head`
+- Healthcheck path: `/health`
+
+Set these environment variables in Railway:
+
+```env
+DATABASE_URL=postgresql://postgres.<project-ref>:<password>@aws-<region>.pooler.supabase.com:5432/postgres
+SECRET_KEY=replace-with-a-long-random-secret
+ACCESS_TOKEN_EXPIRE_MINUTES=480
+CORS_ORIGINS=https://your-frontend-domain.vercel.app
+```
+
+Then:
+
+1. Generate a public Railway domain for the backend service
+2. Copy that Railway backend URL
+3. Use it as `VITE_API_BASE_URL` in the Vercel frontend project
+4. Keep the Vercel URL in `CORS_ORIGINS`
+
+Useful backend URLs after deploy:
+
+- `/` returns a basic status payload
+- `/health` returns `{ "status": "ok" }`
+
+Notes:
+
+- Railway injects the `PORT` variable automatically, and this app is ready for that start command
+- `alembic upgrade head` is a good fit for Railway's pre-deploy step
+- `seed_data.py` is optional and should only be used if you want demo data in production
+- If you keep both Vercel preview and production deployments, add both frontend origins to `CORS_ORIGINS` as a comma-separated list
+
 ### 2. Frontend on Vercel
 
 Deploy the `frontend` folder as the Vercel project root.
@@ -268,7 +307,7 @@ Project settings:
 Set this environment variable in Vercel:
 
 ```env
-VITE_API_BASE_URL=https://your-render-backend.onrender.com
+VITE_API_BASE_URL=https://your-backend-domain
 ```
 
 The file `frontend/vercel.json` is included so React Router routes work correctly on refresh.
@@ -278,9 +317,9 @@ The file `frontend/vercel.json` is included so React Router routes work correctl
 After the frontend is live:
 
 1. Copy the Vercel production URL
-2. Add it to the Render `CORS_ORIGINS` value
+2. Add it to the backend `CORS_ORIGINS` value in Render or Railway
 3. Redeploy the backend if needed
-4. Confirm login and API requests from the hosted frontend
+4. Confirm login, session creation, scan flow, and live updates from the hosted frontend
 
 ### 4. Example production env files
 
