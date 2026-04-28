@@ -113,7 +113,7 @@ smartattend/
 |   |   |   |-- Dashboard.jsx
 |   |   |   |-- LiveSession.jsx
 |   |   |   |-- Login.jsx
-|   |   |   |-- Profile.jsx
+teacher@smartattend.com|   |   |   |-- Profile.jsx
 |   |   |   |-- Reports.jsx
 |   |   |   |-- Scan.jsx
 |   |   |   `-- Signup.jsx
@@ -331,7 +331,7 @@ Frontend default URL:
 http://127.0.0.1:5173
 ```
 
-## Demo accounts
+## Demo login credentials
 
 After running `python seed_data.py`, these demo users are available:
 
@@ -342,6 +342,11 @@ After running `python seed_data.py`, these demo users are available:
 - Employee: `employee@smartattend.com` / `Employee@123`
 
 The seed script also creates additional demo users, sessions, departments, attendance history, and live sessions so the dashboards feel populated.
+
+Important:
+
+- These are demo login credentials for seeded data only
+- Do not commit real production passwords, `DATABASE_URL`, or `SECRET_KEY` values into this repository
 
 ## Supabase setup
 
