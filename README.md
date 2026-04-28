@@ -298,6 +298,7 @@ Notes:
 - `alembic upgrade head` is a good fit for Railway's pre-deploy step
 - `seed_data.py` is optional and should only be used if you want demo data in production
 - If you keep both Vercel preview and production deployments, add both frontend origins to `CORS_ORIGINS` as a comma-separated list
+- The backend pins `bcrypt<5` in `backend/requirements.txt` to avoid production login issues with `passlib[bcrypt]`
 
 ### 2. Frontend on Vercel
 
