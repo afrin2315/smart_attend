@@ -2,6 +2,12 @@
 
 SmartAttend is a full-stack QR-based attendance system built with FastAPI, React, and PostgreSQL on Supabase. It supports both college and industry use cases with role-aware dashboards for admins, teachers, HR teams, students, and employees.
 
+## Quick access
+
+- Live app: https://smart-attend-beryl.vercel.app
+- Backend API: https://smartattend-api-production-9bd4.up.railway.app/
+- API docs: https://smartattend-api-production-9bd4.up.railway.app/docs
+
 ## Why the dual-QR flow matters
 
 SmartAttend reduces proxy attendance by validating two things at the same time:
